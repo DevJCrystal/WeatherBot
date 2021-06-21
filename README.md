@@ -13,3 +13,8 @@ Once done, you can run the script again. As long as debug = True, it will displa
 
 Add the script to crontab -e
 @reboot   sleep 60 && cd /path/to/project/ && /usr/bin/python3 main.py &
+
+Credits:
+Icons:
+https://www.iconfinder.com/Bluxart
+https://www.iconfinder.com/iconsets/meteocons
