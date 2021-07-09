@@ -15,6 +15,10 @@ Once done, you can run the script again. As long as debug = True, it will displa
 Add the script to crontab -e
 > @reboot   sleep 60 && cd /path/to/project/ && /usr/bin/python3 main.py &
 
+<img src="images/Weatherbot.jpg" width=250>
+<img src="images/Weatherbot_color.jpg" width=250>
+(Alert was showing because flash flooding in the area - Future thought, might show qr code to link to alert hmmm)
+
 Credits:
 
 Icons:
