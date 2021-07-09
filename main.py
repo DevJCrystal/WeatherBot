@@ -6,12 +6,6 @@ import schedule
 import configparser
 from epd import base
 
-from datetime import datetime as dt
-
-# Debug
-count = 0
-debug_mode = True
-
 # Static information
 if os.path.exists('settings.ini'):
     Config = configparser.ConfigParser()
@@ -24,25 +18,24 @@ else:
     f.write('[Location]\n')
     f.write('Lat=\n')
     f.write('Long=\n')
+    f.write('\n')
+    f.write('[Application_Settings]\n')
+    f.write('Screen_Type=\n')
     f.close()
     print('Please fill out the settings file!')
     exit()
 
-using_screen = Config.get('Application_Settings', 'Using_Screen')
-
 try:
     epd = base.Get_Display(Config.get('Application_Settings', 'Screen_Type'))
 except Exception as e:
-    using_screen = False
     print('Failed to import Screen')
-    input(e)
+    print(e)
+    print('Waiting 5 seconds before running text/image only mode.')
+    
+    time.sleep(5)
 
-# Windows vs unix
-slash = '\\' if os.name == 'nt' else '/'
-
-# If window (nt) then cls else clear (mac / linux)
-def clear():
-    _ = os.system('cls' if os.name == 'nt' else 'clear')
+    from epd import text_image_only
+    epd = text_image_only.Display()
 
 # Sign up for a free account at tomorrow.io - 500 free calls a day
 apiKey = Config.get('API', 'Key')
@@ -55,14 +48,17 @@ location = f"{Config.get('Location', 'Lat')},{Config.get('Location', 'Long')}"
 
 class LocalStation:
     def __init__(self) -> None:
-        self.last_update_data = None
+        
         self.alerts = False
-        self.full_update_needed = True
-        self.full_update_enabled = True
+
         self.tempeture = 0
         self.wind_speed = 0
         self.weather_code = 0
         self.wind_direction = 0
+        self.save_image = False
+        self.last_update_data = None
+        self.full_update_needed = True
+        self.full_update_enabled = True
         self.precipitation_probability = 0
 
     def update_weather_data(self):
@@ -84,8 +80,6 @@ class LocalStation:
             self.weather_code = updated_data.get('weatherCode')
             self.wind_direction = updated_data.get('windDirection')
             self.precipitation_probability = updated_data.get('precipitationProbability')
-            self.sunrise = updated_data.get('sunriseTime')
-            self.sunset = updated_data.get('sunsetTime')
 
         except:
             print('There was an error updateing the data!')
@@ -119,16 +113,6 @@ class LocalStation:
             except:
                 pass
 
-def alert_encoder(alert):
-    alertEncoder = {
-        "tornado": "T",
-        "floods": "F",
-        "thunderstorms": "TS",
-        "wind": "W"
-    }
-
-    return alertEncoder.get(int(alert))
-
 def get_current_weather():
 
     url = "https://api.tomorrow.io/v4/timelines"
@@ -159,7 +143,8 @@ def get_current_weather():
 
     return json_response['data']['timelines'][0]['intervals'][0].get('values')
 
-
+# Check for any alerts of wind/floods/tornado/thunderstorm type
+# Buffer is area around location in km (metric)
 def check_for_alerts():
 
     url = "https://api.tomorrow.io/v4/events"
@@ -183,16 +168,18 @@ def check_for_alerts():
 
 if __name__ == "__main__":
 
-    # startUp()
+    # Load the weather class
     local_weather = LocalStation()
 
-    # Get some data so it isn't null and update display
+    # Get some fresh data while it is still hot
     local_weather.update_alert_data()
     local_weather.update_weather_data()
 
-    if using_screen:
-        epd.update_display(local_weather)
+    # Display the first image!
+    epd.update_display(local_weather)
 
+
+    # Configure schedule tasks!
     temp = Config.get('API', 'Alert_Time_Check_Range').split(',')
     schedule.every(int(temp[0])).to(int(temp[1])).minutes.do(local_weather.update_alert_data)
 
@@ -204,5 +191,4 @@ if __name__ == "__main__":
         time.sleep(1)
         schedule.run_pending()
 
-        if using_screen:
-            epd.update_display(local_weather)
+        epd.update_display(local_weather)
