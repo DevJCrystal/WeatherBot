@@ -65,3 +65,15 @@ def code_to_weather(code):
     }
 
     return weatherCodeDeCoder.get(int(code))
+
+def debug_text(local_weather, full_timestamp):
+    
+    clear()
+    print(f'Show Alarm: {local_weather.alerts}')
+    print('-'*20) # Makes 20 dashes, fancy!
+    print(time_return(full_timestamp))
+    print(f'Temp: {str(round(local_weather.tempeture))}°F')
+    print(f'Wind Speed: {local_weather.wind_speed} Wind Direction: {return_wind_direction(local_weather.wind_direction)}')
+    print(f'Precipitation Probability: {local_weather.precipitation_probability}')
+    print(f'ico{slash}{code_to_weather(local_weather.weather_code)}.png')
+    print(f'Current conditions: {code_to_weather(local_weather.weather_code).replace("_"," ")}')
