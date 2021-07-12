@@ -219,7 +219,7 @@ if __name__ == "__main__":
     epd.update_display(local_weather)
 
     # Configure schedule tasks!
-    schedule.every.day.at("00:00").do(local_weather.update_local_times)
+    schedule.every().day.at("00:00").do(local_weather.update_local_times)
 
     temp = Config.get('API', 'Alert_Time_Check_Range').split(',')
     schedule.every(int(temp[0])).to(int(temp[1])).minutes.do(local_weather.update_alert_data)

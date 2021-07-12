@@ -58,7 +58,7 @@ def get_icon(weather_code, sunrise, sunset):
     else:
         night_str = "_N"
 
-    dict_of_images[f'ico{slash}{code_to_weather(weather_code)}{night_str}.png']
+    return (dict_of_images[f'ico{slash}{code_to_weather(weather_code)}{night_str}.png'], f'ico{slash}{code_to_weather(weather_code)}{night_str}.png')
 
 # I have adjusted most of these names as heavy rain and light rain is still rain. Too much text. 
 def code_to_weather(code):
@@ -86,5 +86,5 @@ def debug_text(local_weather, full_timestamp):
     print(f'Temp: {str(round(local_weather.tempeture))}°F')
     print(f'Wind Speed: {local_weather.wind_speed} Wind Direction: {return_wind_direction(local_weather.wind_direction)}')
     print(f'Precipitation Probability: {local_weather.precipitation_probability}')
-    print(f'ico{slash}{code_to_weather(local_weather.weather_code)}.png')
+    print(f'{get_icon(local_weather.weather_code, local_weather.sunrise, local_weather.sunset)[1]}')
     print(f'Current conditions: {code_to_weather(local_weather.weather_code).replace("_"," ")}')
