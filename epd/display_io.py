@@ -6,6 +6,9 @@ from PIL import Image
 # Windows vs unix
 slash = '\\' if os.name == 'nt' else '/'
 
+default_font = "fonts/Font.ttc"
+accent_font  = "fonts/LeagueSpartan-Bold.otf"
+
 # Load icons once to prevent leaks
 dict_of_images = {}
 list_of_images = glob.glob(f"ico{slash}*.png")

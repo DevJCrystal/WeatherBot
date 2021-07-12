@@ -25,6 +25,8 @@ else:
     f.write('\n')
     f.write('[Application_Settings]\n')
     f.write('Screen_Type=\n')
+    f.write('Save_Image=False\n')
+    f.write('Flip_Image=True\n')
     f.close()
     print('Please fill out the settings file!')
     exit()
@@ -53,7 +55,8 @@ location = f"{Config.get('Location', 'Lat')},{Config.get('Location', 'Long')}"
 class LocalStation:
     def __init__(self) -> None:
 
-        self.save_image = True
+        self.save_image = Config.get('Application_Settings', 'Save_Image')
+        self.flip_image = Config.get('Application_Settings', 'Flip_Image')
 
         self.alerts = False
         

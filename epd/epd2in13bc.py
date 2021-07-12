@@ -9,11 +9,11 @@ class Display:
         self.epd.init()
         self.blank_image = Image.new('1', (self.epd.height, self.epd.width), 255)
 
-        self.font_14 = ImageFont.truetype('Font.ttc', 14)
-        self.font_16 = ImageFont.truetype('Font.ttc', 16)
-        self.font_18 = ImageFont.truetype('LeagueSpartan-Bold.otf', 18)
-        self.font_20 = ImageFont.truetype('LeagueSpartan-Bold.otf', 20)
-        self.font_24 = ImageFont.truetype('LeagueSpartan-Bold.otf', 24)
+        self.font_14 = ImageFont.truetype(display_io.default_font, 14)
+        self.font_16 = ImageFont.truetype(display_io.default_font, 16)
+        self.font_18 = ImageFont.truetype(display_io.accent_font, 18)
+        self.font_20 = ImageFont.truetype(display_io.accent_font, 20)
+        self.font_24 = ImageFont.truetype(display_io.accent_font, 24)
 
     def update_display(self, local_weather):
 
@@ -69,8 +69,9 @@ class Display:
                 black_draw.text((160, 82), ' ' + str(round(local_weather.tempeture)) + '°F', font = self.font_18, fill = 0)
 
                 # Correct oreintation
-                black_image = black_image.rotate(180)
-                red_image = red_image.rotate(180)
+                if local_weather.flip_image:
+                    black_image = black_image.rotate(180)
+                    red_image = red_image.rotate(180)
 
                 self.epd.Clear()
                 self.epd.display(self.epd.getbuffer(black_image),self.epd.getbuffer(red_image))

@@ -7,11 +7,11 @@ class Display:
     def __init__(self) -> None:
         self.blank_image = Image.new('1', (250, 122), 255)
 
-        self.font_14 = ImageFont.truetype('Font.ttc', 14)
-        self.font_16 = ImageFont.truetype('Font.ttc', 16)
-        self.font_18 = ImageFont.truetype('LeagueSpartan-Bold.otf', 18)
-        self.font_20 = ImageFont.truetype('LeagueSpartan-Bold.otf', 20)
-        self.font_24 = ImageFont.truetype('LeagueSpartan-Bold.otf', 24)
+        self.font_14 = ImageFont.truetype(display_io.default_font, 14)
+        self.font_16 = ImageFont.truetype(display_io.default_font, 16)
+        self.font_18 = ImageFont.truetype(display_io.accent_font, 18)
+        self.font_20 = ImageFont.truetype(display_io.accent_font, 20)
+        self.font_24 = ImageFont.truetype(display_io.accent_font, 24)
 
     def update_display(self, local_weather):
 
@@ -64,9 +64,12 @@ class Display:
                     draw.text((180, 95), ' ' + str(round(local_weather.tempeture)) + '°F', font = self.font_24, fill = 0)
 
                     # Correct oreintation
-                    image = image.rotate(180)
+                    if local_weather.flip_image:
+                        image = image.rotate(180)
 
                     image.save('Weather.jpg')
+
+                    local_weather.full_update_needed = False
 
             except Exception as e:
                 print('There was an error creating image!')
