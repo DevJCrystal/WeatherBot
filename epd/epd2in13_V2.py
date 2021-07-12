@@ -41,7 +41,7 @@ class Display:
             draw.text((2, 100), display_io.code_to_weather(local_weather.weather_code).replace("_"," "), font = self.font_20, fill = 0)
 
             # Load weather icon
-            imgIco = display_io.dict_of_images[f'ico{display_io.slash}{display_io.code_to_weather(local_weather.weather_code)}.png']
+            imgIco = display_io.get_icon(local_weather.weather_code, local_weather.sunrise, local_weather.sunset)
 
             # Top Right - Insert weather icon
             image.paste(imgIco, (185,0), imgIco)

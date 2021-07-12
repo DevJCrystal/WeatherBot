@@ -5,6 +5,7 @@ import requests
 import schedule
 import configparser
 from epd import base
+from datetime import datetime as dt, timezone
 
 # Static information
 if os.path.exists('settings.ini'):
@@ -51,14 +52,18 @@ location = f"{Config.get('Location', 'Lat')},{Config.get('Location', 'Long')}"
 
 class LocalStation:
     def __init__(self) -> None:
-        
+
+        self.save_image = True
+
         self.alerts = False
+        
+        self.sunset = None
+        self.sunrise = None
 
         self.tempeture = 0
         self.wind_speed = 0
         self.weather_code = 0
         self.wind_direction = 0
-        self.save_image = False
         self.last_update_data = None
         self.full_update_needed = True
         self.full_update_enabled = True
@@ -116,6 +121,16 @@ class LocalStation:
             except:
                 pass
 
+    def update_local_times(self):
+
+        data = update_sun_time()
+
+        sunset = data['results']['sunset'].replace("T", " ").split("+")[0]
+        sunrise = data['results']['sunrise'].replace("T", " ").split("+")[0]
+
+        self.sunset = utc_to_now(sunset)
+        self.sunrise = utc_to_now(sunrise)
+
 def get_current_weather():
 
     url = "https://api.tomorrow.io/v4/timelines"
@@ -169,6 +184,27 @@ def check_for_alerts():
 
     return json.loads(response.text)
 
+def update_sun_time():
+    url = "https://api.sunrise-sunset.org/json"
+
+    querystring = {
+                "lat": "41.6693278",
+                "lng":"-73.0759443",
+                "formatted":0
+                }
+
+    headers = {"Accept": "application/json"}
+
+    response = requests.request("GET", url, headers=headers, params=querystring)
+
+    return json.loads(response.text)
+
+def utc_to_now(utc_time):
+        datetime_object = dt.strptime(utc_time, '%Y-%m-%d %H:%M:%S')
+        time = datetime_object.replace(tzinfo=timezone.utc).astimezone(tz=None)
+
+        return str(time)[:-6]
+
 if __name__ == "__main__":
 
     # Load the weather class
@@ -176,13 +212,15 @@ if __name__ == "__main__":
 
     # Get some fresh data while it is still hot
     local_weather.update_alert_data()
+    local_weather.update_local_times()
     local_weather.update_weather_data()
 
     # Display the first image!
     epd.update_display(local_weather)
 
-
     # Configure schedule tasks!
+    schedule.every.day.at("00:00").do(local_weather.update_local_times)
+
     temp = Config.get('API', 'Alert_Time_Check_Range').split(',')
     schedule.every(int(temp[0])).to(int(temp[1])).minutes.do(local_weather.update_alert_data)
 

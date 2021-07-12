@@ -45,9 +45,20 @@ def b(h):
 def return_wind_direction(d):
     return (a(a(a(b(d),direction,0),direction,1),{'by':'b',' ':'','-':''},0))
 
-# TODO 
-# Get day/night
-# Adjust code to match day/night icons.
+def get_icon(weather_code, sunrise, sunset):
+    # Get current time
+    time_of_day = dt.now()
+    time_string = '%Y-%m-%d %H:%M:%S'
+    d = time_of_day.strftime(time_string)
+
+    night_str = ""
+
+    if d > sunrise and d < sunset:
+        night_str = ""
+    else:
+        night_str = "_N"
+
+    dict_of_images[f'ico{slash}{code_to_weather(weather_code)}{night_str}.png']
 
 # I have adjusted most of these names as heavy rain and light rain is still rain. Too much text. 
 def code_to_weather(code):
