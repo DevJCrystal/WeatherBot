@@ -73,6 +73,10 @@ class Display:
                     black_image = black_image.rotate(180)
                     red_image = red_image.rotate(180)
 
+                if local_weather.save_image == True:
+                    red_image.save('rWeather.png')
+                    black_image.save('bWeather.png')
+
                 self.epd.Clear()
                 self.epd.display(self.epd.getbuffer(black_image),self.epd.getbuffer(red_image))
                 local_weather.full_update_needed = False

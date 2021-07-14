@@ -61,7 +61,7 @@ def get_icon(weather_code, sunrise, sunset):
     else:
         night_str = "_N"
 
-    return (dict_of_images[f'ico{slash}{code_to_weather(weather_code)}{night_str}.png'], f'ico{slash}{code_to_weather(weather_code)}{night_str}.png')
+    return (dict_of_images[f'ico{slash}{code_to_weather(weather_code)}{night_str}.png'].convert("RGBA"), f'ico{slash}{code_to_weather(weather_code)}{night_str}.png')
 
 # I have adjusted most of these names as heavy rain and light rain is still rain. Too much text. 
 def code_to_weather(code):

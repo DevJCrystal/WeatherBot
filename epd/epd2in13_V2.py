@@ -65,6 +65,9 @@ class Display:
             if local_weather.flip_image:
                 image = image.rotate(180)
 
+            if local_weather.save_image == True:
+                image.save('Weather.png')
+
             # Prepare screen
                 
             if local_weather.full_update_needed:
