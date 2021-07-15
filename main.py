@@ -230,6 +230,12 @@ if __name__ == "__main__":
     temp = Config.get('API', 'Current_Weather_Time_Check_Range').split(',')
     schedule.every(int(temp[0])).to(int(temp[1])).minutes.do(local_weather.update_weather_data)
 
+    if epd.scrub_needed:
+        # This is to prevent screen burn in. 
+        # I have seen it on two screens.
+        schedule.every().hour.do(epd.Scrub())
+        local_weather.full_update_needed = True
+
     while True:
 
         time.sleep(1)

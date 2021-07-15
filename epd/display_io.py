@@ -83,6 +83,8 @@ def code_to_weather(code):
 def debug_text(local_weather, full_timestamp):
     
     clear()
+    print(f'Full Update Enabled: {local_weather.full_update_enabled}')
+    print(f'Full Update Needed: {local_weather.full_update_needed}')
     print(f'Show Alarm: {local_weather.alerts}')
     print('-'*20) # Makes 20 dashes, fancy!
     print(time_return(full_timestamp))

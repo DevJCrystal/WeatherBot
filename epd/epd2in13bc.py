@@ -7,6 +7,7 @@ class Display:
     def __init__(self) -> None:
         self.epd = epd2in13bc.EPD()
         self.epd.init()
+        self.scrub_needed = False
         self.blank_image = Image.new('1', (self.epd.height, self.epd.width), 255)
 
         self.font_14 = ImageFont.truetype(display_io.default_font, 14)

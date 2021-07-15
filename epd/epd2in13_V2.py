@@ -7,6 +7,7 @@ class Display:
     def __init__(self) -> None:
         self.epd = epd2in13_V2.EPD()
         self.epd.init(self.epd.FULL_UPDATE)
+        self.scrub_needed = True
         self.blank_image = Image.new('1', (self.epd.height, self.epd.width), 255)
 
         self.font_14 = ImageFont.truetype(display_io.default_font, 14)
@@ -76,6 +77,7 @@ class Display:
                     local_weather.full_update_enabled = True
 
                 self.epd.Clear(0xFF)
+                self.epd.display(self.epd.getbuffer(image))
                 self.epd.displayPartBaseImage(self.epd.getbuffer(image))
 
                 # Prevent looping full updates
@@ -90,3 +92,12 @@ class Display:
         except Exception as e:
             print('There was an error updating the screen.')
             input(e)
+
+    # Scrubbing to prevent burn in.
+    # I have seen it, I know it shouldn't happen but I have seen it.
+    def Scrub(self):
+
+        cycles = [0x0,0xFF,0x0,0xFF]
+        
+        for cycle in cycles:
+            self.epd.Clear(cycle)

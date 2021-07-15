@@ -5,6 +5,7 @@ from PIL import Image, ImageFont, ImageDraw
 
 class Display:
     def __init__(self) -> None:
+        self.scrub_needed = False
         self.blank_image = Image.new('1', (250, 122), 255)
 
         self.font_14 = ImageFont.truetype(display_io.default_font, 14)
