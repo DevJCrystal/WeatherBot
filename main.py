@@ -90,10 +90,12 @@ class LocalStation:
             self.tempeture = updated_data.get('temperature')
             self.weather_code = updated_data.get('weatherCode')
             self.wind_direction = updated_data.get('windDirection')
+            # Sadly, precipitation Probability does not return a variable 
+            # that would make you think it is the precipitation Probability.
             self.precipitation_probability = updated_data.get('precipitationProbability')
 
         except:
-            print('There was an error updateing the data!')
+            print('There was an error updating the data!')
 
     def update_alert_data(self):
 
