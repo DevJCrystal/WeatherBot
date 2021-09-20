@@ -84,10 +84,11 @@ def debug_text(local_weather, full_timestamp):
     
     clear()
     print(f'Full Update Enabled: {local_weather.full_update_enabled}')
-    print(f'Full Update Needed: {local_weather.full_update_needed}')
-    print(f'Show Alarm: {local_weather.alerts}')
-    print('-'*20) # Makes 20 dashes, fancy!
+    print(f'Full Update  Needed: {local_weather.full_update_needed}')
+    print('-'*20)
     print(time_return(full_timestamp))
+    print(f'Show Alarm: {local_weather.alerts}')
+    print('-'*20)
     print(f'Temp: {str(round(local_weather.tempeture))}°F')
     print(f'Wind Speed: {local_weather.wind_speed} Wind Direction: {return_wind_direction(local_weather.wind_direction)}')
     print(f'Precipitation Probability: {local_weather.precipitation_probability}')

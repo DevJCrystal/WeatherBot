@@ -1,16 +1,26 @@
 import os
 import time
 import json
-import requests 
+import logging
+import requests
 import schedule
 import configparser
 from epd import base
 from datetime import datetime as dt, timezone
 
 # Static information
+
+# Windows vs unix
+slash = '\\' if os.name == 'nt' else '/'
+
+now = dt.now()
+dt_string = now.strftime("%m_%d_%y_%I_%M_%S")
+logging.basicConfig(filename=f'logs{slash}error_log_{dt_string}.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+
 if os.path.exists('settings.ini'):
     Config = configparser.ConfigParser()
     Config.read("settings.ini")
+    logging.info('Read settings file!')
 else:
     f = open('settings.ini', 'w')
     f.write('[API]\n')
@@ -28,16 +38,16 @@ else:
     f.write('Save_Image=False\n')
     f.write('Flip_Image=True\n')
     f.close()
-    print('Please fill out the settings file!')
+    logging.info('Please fill out the settings file!')
     exit()
 
 try:
     epd = base.Get_Display(Config.get('Application_Settings', 'Screen_Type'))
 except Exception as e:
-    print('Failed to import Screen')
+    logging.error('Failed to load screen')
     print(e)
-    print('Waiting 5 seconds before running text/image only mode.')
-    
+    logging.info('Waiting 5 seconds before running text/image only mode.')
+
     time.sleep(5)
 
     from epd import text_image_only
@@ -46,7 +56,7 @@ except Exception as e:
 # Sign up for a free account at tomorrow.io - 500 free calls a day
 apiKey = Config.get('API', 'Key')
 if len(apiKey) == 0:
-    print('No apiKey installed! - Go into settings!')
+    logging.critical('No apiKey installed! - Go into settings!')
     quit()
 
 # Loading location from Settings
@@ -59,7 +69,7 @@ class LocalStation:
         self.flip_image = Config.get('Application_Settings', 'Flip_Image')
 
         self.alerts = False
-        
+
         self.sunset = None
         self.sunrise = None
 
@@ -85,17 +95,15 @@ class LocalStation:
             self.full_update_needed = True if self.precipitation_probability == updated_data.get('precipitationProbability') else self.full_update_needed
 
             self.last_update_data = updated_data
-            
+
             self.wind_speed = updated_data.get('windSpeed')
             self.tempeture = updated_data.get('temperature')
             self.weather_code = updated_data.get('weatherCode')
             self.wind_direction = updated_data.get('windDirection')
-            # Sadly, precipitation Probability does not return a variable 
-            # that would make you think it is the precipitation Probability.
             self.precipitation_probability = updated_data.get('precipitationProbability')
 
         except:
-            print('There was an error updating the data!')
+            logging.error('There was an error updating the data!')
 
     def update_alert_data(self):
 
@@ -116,9 +124,9 @@ class LocalStation:
                     self.alerts = False
                     self.alert_type = ""
                     self.full_update_needed = True
-            
+
         except:
-            print('There was an error updating the alert(s)')
+            logging.error('There was an error updating the alert(s)')
             try:
                 # This message shows when there is an error with the API
                 alert_data['message']
@@ -154,15 +162,21 @@ def get_current_weather():
 
     headers = {"Accept": "application/json"}
 
-    response = requests.request("GET", url, headers=headers, params=querystring)
-
-    json_response = json.loads(response.text)
+    try:
+        response = requests.request("GET", url, headers=headers, params=querystring)
+    except:
+        logging.error('Could not get data!')
+        # TODO try pinging an address to check to see if there is internet.
+        # If there is no internet, try rebooting.
 
     try:
-        json_response['message']
-        return ['Error', json_response['message']]
+        json_response = json.loads(response.text)
     except:
-        pass
+        logging.error('Invalid json response!')
+        logging.error('--Start of Response--')
+        logging.error(response)
+        logging.error('--End of Response--')
+        return ['Error', response]
 
     return json_response['data']['timelines'][0]['intervals'][0].get('values')
 
@@ -185,9 +199,23 @@ def check_for_alerts():
 
     headers = {"Accept": "application/json"}
 
-    response = requests.request("GET", url, headers=headers, params=querystring)
+    try:
+        response = requests.request("GET", url, headers=headers, params=querystring)
+    except:
+        logging.error('Could not get data!')
+        # TODO try pinging an address to check to see if there is internet.
+        # If there is no internet, try rebooting.
 
-    return json.loads(response.text)
+    try:
+        json_response = json.loads(response.text)
+    except:
+        logging.error('Invalid json response!')
+        logging.error('--Start of Response--')
+        logging.error(response)
+        logging.error('--End of Response--')
+        return ['Error', response]
+
+    return json_response
 
 def update_sun_time():
     url = "https://api.sunrise-sunset.org/json"
@@ -200,8 +228,12 @@ def update_sun_time():
 
     headers = {"Accept": "application/json"}
 
-    response = requests.request("GET", url, headers=headers, params=querystring)
-
+    try:
+        response = requests.request("GET", url, headers=headers, params=querystring)
+    except:
+        logging.error('Could not get data!')
+        # TODO try pinging an address to check to see if there is internet.
+        # If there is no internet, try rebooting.
     return json.loads(response.text)
 
 def utc_to_now(utc_time):
@@ -235,7 +267,7 @@ if __name__ == "__main__":
     if epd.scrub_needed:
         # This is to prevent screen burn in. 
         # I have seen it on two screens.
-        schedule.every().hour.do(epd.Scrub())
+        schedule.every().hour.do(epd.Scrub)
         local_weather.full_update_needed = True
 
     while True:
@@ -243,4 +275,7 @@ if __name__ == "__main__":
         time.sleep(1)
         schedule.run_pending()
 
-        epd.update_display(local_weather)
+        try:
+            epd.update_display(local_weather)
+        except Exception as e:
+            logging.critical(e)

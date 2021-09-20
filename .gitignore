@@ -8,3 +8,4 @@ workspace.code-workspace
 testing.py
 Weather.jpg
 ping.bat
+*.log
