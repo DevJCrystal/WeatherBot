@@ -221,8 +221,8 @@ def update_sun_time():
     url = "https://api.sunrise-sunset.org/json"
 
     querystring = {
-                "lat": "41.6693278",
-                "lng":"-73.0759443",
+                "lat": location.split(",")[0],
+                "lng": location.split(",")[1],
                 "formatted":0
                 }
 

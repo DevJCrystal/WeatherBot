@@ -85,6 +85,8 @@ def debug_text(local_weather, full_timestamp):
     clear()
     print(f'Full Update Enabled: {local_weather.full_update_enabled}')
     print(f'Full Update  Needed: {local_weather.full_update_needed}')
+    print(f'Sun Rise: {local_weather.sunrise}')
+    print(f'Sun  Set: {local_weather.sunset}')
     print('-'*20)
     print(time_return(full_timestamp))
     print(f'Show Alarm: {local_weather.alerts}')
