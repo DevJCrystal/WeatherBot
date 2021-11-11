@@ -65,8 +65,8 @@ location = f"{Config.get('Location', 'Lat')},{Config.get('Location', 'Long')}"
 class LocalStation:
     def __init__(self) -> None:
 
-        self.save_image = Config.get('Application_Settings', 'Save_Image')
-        self.flip_image = Config.get('Application_Settings', 'Flip_Image')
+        self.save_image = json.loads(Config.get('Application_Settings', 'Save_Image').lower())
+        self.flip_image = json.loads(Config.get('Application_Settings', 'Flip_Image').lower())
 
         self.alerts = False
 

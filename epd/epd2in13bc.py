@@ -74,7 +74,7 @@ class Display:
                     black_image = black_image.rotate(180)
                     red_image = red_image.rotate(180)
 
-                if local_weather.save_image == True:
+                if local_weather.save_image:
                     red_image.save('rWeather.png')
                     black_image.save('bWeather.png')
 

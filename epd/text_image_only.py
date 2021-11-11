@@ -68,7 +68,8 @@ class Display:
                     if local_weather.flip_image:
                         image = image.rotate(180)
 
-                    image.save('Weather.jpg')
+                    if local_weather.save_image:
+                        image.save('Weather.jpg')
 
                     local_weather.full_update_needed = False
 
