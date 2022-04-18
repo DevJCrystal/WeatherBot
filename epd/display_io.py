@@ -51,7 +51,7 @@ def return_wind_direction(d):
 def get_icon(weather_code, sunrise, sunset):
     # Get current time
     time_of_day = dt.now()
-    time_string = '%Y-%m-%d %H:%M:%S'
+    time_string = '%Y-%m-%d %I:%M:%S'
     d = time_of_day.strftime(time_string)
 
     night_str = ""
@@ -85,10 +85,10 @@ def debug_text(local_weather, full_timestamp):
     clear()
     print(f'Full Update Enabled: {local_weather.full_update_enabled}')
     print(f'Full Update  Needed: {local_weather.full_update_needed}')
-    print(f'Sun Rise: {local_weather.sunrise}')
-    print(f'Sun  Set: {local_weather.sunset}')
     print('-'*20)
     print(time_return(full_timestamp))
+    print(f'Sunrise: {local_weather.sunrise}')
+    print(f'Sunset : {local_weather.sunset}')
     print(f'Show Alarm: {local_weather.alerts}')
     print('-'*20)
     print(f'Temp: {str(round(local_weather.tempeture))}°F')

@@ -22,7 +22,7 @@ class Display:
             display_io.debug_text(local_weather, True)
 
             try:
-                
+
                 if local_weather.save_image == True:
 
                     # Create blank image
@@ -68,8 +68,7 @@ class Display:
                     if local_weather.flip_image:
                         image = image.rotate(180)
 
-                    if local_weather.save_image:
-                        image.save('Weather.jpg')
+                    image.save('Weather.jpg')
 
                     local_weather.full_update_needed = False
 

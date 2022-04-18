@@ -2,6 +2,7 @@ import os
 import time
 import json
 import logging
+import platform
 import requests
 import schedule
 import configparser
@@ -60,10 +61,14 @@ if len(apiKey) == 0:
     quit()
 
 # Loading location from Settings
+lat = Config.get('Location', 'Lat')
+lng = Config.get('Location', 'Long')
 location = f"{Config.get('Location', 'Lat')},{Config.get('Location', 'Long')}"
 
 class LocalStation:
     def __init__(self) -> None:
+
+        self.error_count = 0
 
         self.save_image = json.loads(Config.get('Application_Settings', 'Save_Image').lower())
         self.flip_image = json.loads(Config.get('Application_Settings', 'Flip_Image').lower())
@@ -83,7 +88,6 @@ class LocalStation:
         self.precipitation_probability = 0
 
     def update_weather_data(self):
-        self.full_update_needed
 
         # Current weather
         try:
@@ -103,7 +107,9 @@ class LocalStation:
             self.precipitation_probability = updated_data.get('precipitationProbability')
 
         except:
+            self.error_count += 1
             logging.error('There was an error updating the data!')
+
 
     def update_alert_data(self):
 
@@ -126,6 +132,7 @@ class LocalStation:
                     self.full_update_needed = True
 
         except:
+            self.error_count += 1
             logging.error('There was an error updating the alert(s)')
             try:
                 # This message shows when there is an error with the API
@@ -166,17 +173,20 @@ def get_current_weather():
         response = requests.request("GET", url, headers=headers, params=querystring)
     except:
         logging.error('Could not get data!')
-        # TODO try pinging an address to check to see if there is internet.
-        # If there is no internet, try rebooting.
+
+    json_response = json.loads(response.text)
 
     try:
-        json_response = json.loads(response.text)
+        logging.error('invalid json response!')
+        json_response['message']
+        return ['Error', json_response['message']]
     except:
-        logging.error('Invalid json response!')
-        logging.error('--Start of Response--')
-        logging.error(response)
-        logging.error('--End of Response--')
-        return ['Error', response]
+        # logging.error('Invalid json response!')
+        # logging.error('--Start of Response--')
+        # logging.error(response)
+        # logging.error('--End of Response--')
+        # return ['Error', response]
+        pass
 
     return json_response['data']['timelines'][0]['intervals'][0].get('values')
 
@@ -203,41 +213,34 @@ def check_for_alerts():
         response = requests.request("GET", url, headers=headers, params=querystring)
     except:
         logging.error('Could not get data!')
-        # TODO try pinging an address to check to see if there is internet.
-        # If there is no internet, try rebooting.
 
-    try:
-        json_response = json.loads(response.text)
-    except:
-        logging.error('Invalid json response!')
-        logging.error('--Start of Response--')
-        logging.error(response)
-        logging.error('--End of Response--')
-        return ['Error', response]
-
-    return json_response
+    return json.loads(response.text)
 
 def update_sun_time():
     url = "https://api.sunrise-sunset.org/json"
 
     querystring = {
-                "lat": location.split(",")[0],
-                "lng": location.split(",")[1],
-                "formatted":0
+                "lat": lat,
+                "lng": lng
                 }
 
     headers = {"Accept": "application/json"}
 
     try:
-        response = requests.request("GET", url, headers=headers, params=querystring)
+        response = requests.request("GET", url, headers=headers, verify=False, params=querystring)
     except:
+        print("Error: Could not get data!")
         logging.error('Could not get data!')
-        # TODO try pinging an address to check to see if there is internet.
-        # If there is no internet, try rebooting.
+
     return json.loads(response.text)
 
 def utc_to_now(utc_time):
-        datetime_object = dt.strptime(utc_time, '%Y-%m-%d %H:%M:%S')
+        datetime_object = dt.strptime(utc_time, '%I:%M:%S %p') # %Y-%m-%d %H:%M:%S
+        utc_now_dt = dt.utcnow()
+        utc_time_split = str(utc_now_dt).split('-')
+        day = (int(utc_time_split[2].split(' ')[0]))
+
+        datetime_object = datetime_object.replace(month=int(utc_time_split[1]), day=day, year=int(utc_time_split[0]))
         time = datetime_object.replace(tzinfo=timezone.utc).astimezone(tz=None)
 
         return str(time)[:-6]
