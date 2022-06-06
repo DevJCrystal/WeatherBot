@@ -87,7 +87,14 @@ class LocalStation:
         self.full_update_enabled = True
         self.precipitation_probability = 0
 
+
+    def reboot_pi(self):
+        if self.error_count > 5 and platform.system() == "Linux":
+            os.system('sudo shutdown -r now')
+
     def update_weather_data(self):
+
+        self.reboot_pi()
 
         # Current weather
         try:
@@ -112,6 +119,8 @@ class LocalStation:
 
 
     def update_alert_data(self):
+
+        self.reboot_pi()
 
         try:
             alert_data = check_for_alerts()
@@ -142,6 +151,8 @@ class LocalStation:
                 pass
 
     def update_local_times(self):
+
+        self.reboot_pi()
 
         data = update_sun_time()
 
@@ -181,11 +192,6 @@ def get_current_weather():
         json_response['message']
         return ['Error', json_response['message']]
     except:
-        # logging.error('Invalid json response!')
-        # logging.error('--Start of Response--')
-        # logging.error(response)
-        # logging.error('--End of Response--')
-        # return ['Error', response]
         pass
 
     return json_response['data']['timelines'][0]['intervals'][0].get('values')
@@ -225,6 +231,11 @@ def update_sun_time():
                 }
 
     headers = {"Accept": "application/json"}
+
+    # url = f"https://api.sunrise-sunset.org/json?lat={lat}&lng={lng}"
+    # print(url)
+
+    # print(querystring)
 
     try:
         response = requests.request("GET", url, headers=headers, verify=False, params=querystring)

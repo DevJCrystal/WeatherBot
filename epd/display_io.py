@@ -51,15 +51,17 @@ def return_wind_direction(d):
 def get_icon(weather_code, sunrise, sunset):
     # Get current time
     time_of_day = dt.now()
+    tod = dt.strftime(time_of_day, "%Y-%m-%d %H:%M:%S")
+    tod = dt.strptime(tod, "%Y-%m-%d %H:%M:%S")
     sr = dt.strptime(sunrise, "%Y-%m-%d %H:%M:%S")
     ss = dt.strptime(sunset, "%Y-%m-%d %H:%M:%S")
 
     night_str = ""
 
-    if time_of_day > sr and time_of_day < ss:
-        night_str = ""
-    else:
+    if tod <= sr and tod >= ss:
         night_str = "_N"
+    else:
+        night_str = ""
 
     return (dict_of_images[f'ico{slash}{code_to_weather(weather_code)}{night_str}.png'].convert("RGBA"), f'ico{slash}{code_to_weather(weather_code)}{night_str}.png')
 
